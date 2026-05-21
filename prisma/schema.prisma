@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PostStatus {
+  DRAFT
+  APPROVED
+  PUBLISHED
+  REJECTED
+}
+
+enum Platform {
+  LINKEDIN
+  INSTAGRAM
+}
+
+model BlogPost {
+  id            String       @id @default(cuid())
+  wpId          Int          @unique @map("wp_id")
+  title         String
+  url           String
+  excerpt       String       @db.Text
+  content       String       @db.Text
+  categories    String[]
+  tags          String[]
+  serviceUrl    String?      @map("service_url")
+  featuredImage String?      @map("featured_image")
+  wpPublishedAt DateTime     @map("wp_published_at")
+  syncedAt      DateTime     @map("synced_at")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  socialPosts   SocialPost[]
+
+  @@map("blog_posts")
+}
+
+model SocialPost {
+  id              String       @id @default(cuid())
+  blogPostId      String       @map("blog_post_id")
+  blogPost        BlogPost     @relation(fields: [blogPostId], references: [id])
+  status          PostStatus   @default(DRAFT)
+  linkedinText    String       @db.Text @map("linkedin_text")
+  instagramText   String       @db.Text @map("instagram_text")
+  hashtags        String[]
+  blogUrl         String       @map("blog_url")
+  serviceUrl      String?      @map("service_url")
+  scheduledFor    DateTime?    @map("scheduled_for")
+  publishedAt     DateTime?    @map("published_at")
+  linkedinPostId  String?      @map("linkedin_post_id")
+  instagramPostId String?      @map("instagram_post_id")
+  generationNotes String?      @map("generation_notes")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  publishLog      PublishLog[]
+
+  @@map("social_posts")
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model PublishLog {
+  id           String     @id @default(cuid())
+  socialPostId String     @map("social_post_id")
+  socialPost   SocialPost @relation(fields: [socialPostId], references: [id])
+  platform     Platform
+  success      Boolean
+  errorMessage String?    @map("error_message")
+  responseData Json?      @map("response_data")
+  publishedAt  DateTime   @default(now()) @map("published_at")
+
+  @@map("publish_log")
+}
