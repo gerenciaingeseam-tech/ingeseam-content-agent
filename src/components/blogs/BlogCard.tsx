@@ -12,9 +12,9 @@ interface BlogCardProps {
 }
 
 export function BlogCard({ blog }: BlogCardProps) {
-  const hasPublished = blog.socialPosts.some((p) => p.status === 'PUBLISHED')
+  const hasPublished = blog.socialPosts.some((p: { status: PostStatus }) => p.status === 'PUBLISHED')
   const hasDraft = blog.socialPosts.some(
-    (p) => p.status === 'DRAFT' || p.status === 'APPROVED'
+    (p: { status: PostStatus }) => p.status === 'DRAFT' || p.status === 'APPROVED'
   )
 
   const statusLabel = hasPublished ? 'Publicado' : hasDraft ? 'Borrador listo' : 'Sin usar'

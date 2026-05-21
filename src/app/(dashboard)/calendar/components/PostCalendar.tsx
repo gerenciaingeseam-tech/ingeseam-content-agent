@@ -71,7 +71,8 @@ export function PostCalendar({ posts }: PostCalendarProps) {
         {days.map((day, i) => {
           const inMonth = isSameMonth(day, today)
           const isCurrentDay = isToday(day)
-          const dayPosts = posts.filter((p) => {
+          type CalPost = (typeof posts)[number]
+          const dayPosts = posts.filter((p: CalPost) => {
             const d = getPostDate(p)
             return d && isSameDay(d, day)
           })

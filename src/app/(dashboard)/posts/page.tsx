@@ -19,12 +19,14 @@ export default async function PostsPage() {
     include: { blogPost: true },
   })
 
+  type PostItem = (typeof posts)[number]
+
   const counts = {
     ALL: posts.length,
-    DRAFT: posts.filter((p) => p.status === 'DRAFT').length,
-    APPROVED: posts.filter((p) => p.status === 'APPROVED').length,
-    PUBLISHED: posts.filter((p) => p.status === 'PUBLISHED').length,
-    REJECTED: posts.filter((p) => p.status === 'REJECTED').length,
+    DRAFT: posts.filter((p: PostItem) => p.status === 'DRAFT').length,
+    APPROVED: posts.filter((p: PostItem) => p.status === 'APPROVED').length,
+    PUBLISHED: posts.filter((p: PostItem) => p.status === 'PUBLISHED').length,
+    REJECTED: posts.filter((p: PostItem) => p.status === 'REJECTED').length,
   }
 
   return (
@@ -51,10 +53,10 @@ export default async function PostsPage() {
         </TabsList>
 
         {TABS.map((tab) => {
-          const filtered =
+          const filtered: PostItem[] =
             tab.value === 'ALL'
               ? posts
-              : posts.filter((p) => p.status === tab.value)
+              : posts.filter((p: PostItem) => p.status === tab.value)
 
           return (
             <TabsContent key={tab.value} value={tab.value} className="mt-4">
@@ -64,7 +66,7 @@ export default async function PostsPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filtered.map((post) => (
+                  {filtered.map((post: PostItem) => (
                     <PostCard key={post.id} post={post} />
                   ))}
                 </div>

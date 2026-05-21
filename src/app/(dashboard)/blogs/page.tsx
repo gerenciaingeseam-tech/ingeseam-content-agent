@@ -16,12 +16,13 @@ export default async function BlogsPage() {
   })
 
   type BlogItem = (typeof blogs)[number]
+  type SocialPostItem = BlogItem['socialPosts'][number]
 
   const published = blogs.filter((b: BlogItem) =>
-    b.socialPosts.some((p) => p.status === 'PUBLISHED')
+    b.socialPosts.some((p: SocialPostItem) => p.status === 'PUBLISHED')
   ).length
   const withDraft = blogs.filter((b: BlogItem) =>
-    b.socialPosts.some((p) => p.status === 'DRAFT' || p.status === 'APPROVED')
+    b.socialPosts.some((p: SocialPostItem) => p.status === 'DRAFT' || p.status === 'APPROVED')
   ).length
   const unused = blogs.filter((b: BlogItem) => b.socialPosts.length === 0).length
 
