@@ -2,13 +2,8 @@ import { db } from '@/lib/db'
 import { BlogCard } from '@/components/blogs/BlogCard'
 import { SyncBlogsButton } from '@/app/(dashboard)/blogs/components/SyncBlogsButton'
 import { BookOpen } from 'lucide-react'
-import type { PostStatus } from '@/types'
 
 export const dynamic = 'force-dynamic'
-
-type BlogWithPosts = {
-  socialPosts: { status: PostStatus }[]
-}
 
 export default async function BlogsPage() {
   const blogs = await db.blogPost.findMany({
@@ -20,13 +15,15 @@ export default async function BlogsPage() {
     },
   })
 
-  const published = blogs.filter((b: BlogWithPosts) =>
+  type BlogItem = (typeof blogs)[number]
+
+  const published = blogs.filter((b: BlogItem) =>
     b.socialPosts.some((p) => p.status === 'PUBLISHED')
   ).length
-  const withDraft = blogs.filter((b: BlogWithPosts) =>
+  const withDraft = blogs.filter((b: BlogItem) =>
     b.socialPosts.some((p) => p.status === 'DRAFT' || p.status === 'APPROVED')
   ).length
-  const unused = blogs.filter((b: BlogWithPosts) => b.socialPosts.length === 0).length
+  const unused = blogs.filter((b: BlogItem) => b.socialPosts.length === 0).length
 
   return (
     <div className="space-y-6">
@@ -54,10 +51,7 @@ export default async function BlogsPage() {
             key={stat.label}
             className="bg-white border border-[#E2E8F0] rounded-lg px-4 py-3 shadow-sm flex items-center gap-3"
           >
-            <span
-              className="text-2xl font-bold"
-              style={{ color: stat.color }}
-            >
+            <span className="text-2xl font-bold" style={{ color: stat.color }}>
               {stat.value}
             </span>
             <span className="text-xs text-[#64748B]">{stat.label}</span>
@@ -76,7 +70,7 @@ export default async function BlogsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {blogs.map((blog) => (
+          {blogs.map((blog: BlogItem) => (
             <BlogCard key={blog.id} blog={blog} />
           ))}
         </div>
