@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { StatusBadge } from '@/components/posts/StatusBadge'
+import { DeletePostButton } from '@/components/posts/DeletePostButton'
 import { ArrowRight, Calendar } from 'lucide-react'
 import type { SocialPostWithBlog } from '@/types'
 import { format } from 'date-fns'
@@ -12,6 +13,8 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
+  const canDelete = post.status === 'REJECTED' || post.status === 'DRAFT'
+
   return (
     <Card className="border-[#E2E8F0] shadow-sm hover:shadow-md transition-shadow flex flex-col">
       <CardContent className="p-4 flex-1 space-y-3">
@@ -45,15 +48,20 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       </CardContent>
 
-      <CardFooter className="p-4 pt-0">
-        <Link href={`/posts/${post.id}`} className="w-full">
+      <CardFooter className="p-4 pt-0 flex gap-2">
+        {canDelete && (
+          <DeletePostButton postId={post.id} />
+        )}
+
+        <Link href={`/posts/${post.id}`} className="flex-1">
           <Button
             size="sm"
             className="w-full gap-1 text-xs text-white"
             style={{ backgroundColor: '#1B3A6B' }}
           >
             {post.status === 'DRAFT' ? 'Revisar y aprobar' :
-             post.status === 'APPROVED' ? 'Ver y publicar' : 'Ver detalle'}
+             post.status === 'APPROVED' ? 'Ver y publicar' :
+             post.status === 'REJECTED' ? 'Ver detalle' : 'Ver detalle'}
             <ArrowRight className="w-3 h-3" />
           </Button>
         </Link>
