@@ -65,7 +65,7 @@ export function GeneratePostButton({ blogPostId, disabled }: GeneratePostButtonP
         ) : (
           <Sparkles className="w-3 h-3 mr-1" />
         )}
-        {loading ? 'Generando...' : disabled ? 'Ya publicado' : 'Generar post'}
+        {loading ? 'Generando...' : 'Generar post'}
       </Button>
       {error && <p className="text-xs text-[#DC2626]">{error}</p>}
     </div>

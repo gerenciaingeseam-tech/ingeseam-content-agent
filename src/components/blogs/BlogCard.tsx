@@ -85,7 +85,7 @@ export function BlogCard({ blog }: BlogCardProps) {
         </Link>
 
         <div className="ml-auto">
-          <GeneratePostButton blogPostId={blog.id} disabled={hasPublished} />
+          <GeneratePostButton blogPostId={blog.id} disabled={false} />
         </div>
       </CardFooter>
     </Card>
