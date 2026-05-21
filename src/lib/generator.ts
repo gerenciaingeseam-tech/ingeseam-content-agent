@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { LINKEDIN_SYSTEM_PROMPT, INSTAGRAM_SYSTEM_PROMPT } from '@/lib/prompts'
 import type { BlogPost, GeneratedPostPair } from '@/types'
 
-const MODEL = 'claude-3-5-sonnet-20241022'
+const MODEL = 'claude-opus-4-5'
 
 function extractHashtags(text: string): string[] {
   const matches = text.match(/#[\wÀ-ɏ]+/g) ?? []
