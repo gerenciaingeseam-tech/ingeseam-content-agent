@@ -5,6 +5,7 @@ import { LinkedInPreview } from '@/components/posts/LinkedInPreview'
 import { InstagramPreview } from '@/components/posts/InstagramPreview'
 import { ApproveRejectBar } from '@/components/posts/ApproveRejectBar'
 import { StatusBadge } from '@/components/posts/StatusBadge'
+import { ImageUploader } from '@/components/posts/ImageUploader'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { ExternalLink, Save, RefreshCw } from 'lucide-react'
@@ -23,6 +24,11 @@ export function PostEditor({ post }: PostEditorProps) {
   const [instagramText, setInstagramText] = useState(post.instagramText)
   const [hashtags] = useState(post.hashtags)
   const [status, setStatus] = useState<PostStatus>(post.status)
+  // customImageUrl sobreescribe la imagen del blog al publicar
+  const [customImage, setCustomImage] = useState<string | null>(
+    (post as typeof post & { customImageUrl?: string | null }).customImageUrl ?? null
+  )
+  const activeImage = customImage ?? post.blogPost.featuredImage
   const [saving, setSaving] = useState(false)
   const [savedAt, setSavedAt] = useState<Date | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -188,10 +194,16 @@ export function PostEditor({ post }: PostEditorProps) {
             </div>
           )}
 
+          <ImageUploader
+            postId={post.id}
+            currentImage={activeImage}
+            onImageChange={setCustomImage}
+          />
+
           <InstagramPreview
             text={instagramText}
             hashtags={hashtags}
-            featuredImage={post.blogPost.featuredImage}
+            featuredImage={activeImage}
           />
         </div>
       </div>

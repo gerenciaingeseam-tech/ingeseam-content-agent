@@ -49,9 +49,10 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
 
   if (linkedinToken && orgId) {
     try {
+      const imageToUse = (post as typeof post & { customImageUrl?: string | null }).customImageUrl
+        ?? post.blogPost.featuredImage
       linkedinPostId = await publishToLinkedInCompanyPage(
-        linkedinToken, orgId, post.linkedinText,
-        post.blogPost.featuredImage, post.blogUrl
+        linkedinToken, orgId, post.linkedinText, imageToUse, post.blogUrl
       )
       logs.push({
         socialPostId: id, platform: 'LINKEDIN', success: true,

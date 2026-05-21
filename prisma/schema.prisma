@@ -52,6 +52,7 @@ model SocialPost {
   linkedinPostId  String?      @map("linkedin_post_id")
   instagramPostId String?      @map("instagram_post_id")
   generationNotes String?      @map("generation_notes")
+  customImageUrl  String?      @map("custom_image_url")
   createdAt       DateTime     @default(now()) @map("created_at")
   updatedAt       DateTime     @updatedAt @map("updated_at")
   publishLog      PublishLog[]
