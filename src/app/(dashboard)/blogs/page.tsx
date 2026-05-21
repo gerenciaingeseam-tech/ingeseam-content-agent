@@ -2,8 +2,13 @@ import { db } from '@/lib/db'
 import { BlogCard } from '@/components/blogs/BlogCard'
 import { SyncBlogsButton } from '@/app/(dashboard)/blogs/components/SyncBlogsButton'
 import { BookOpen } from 'lucide-react'
+import type { PostStatus } from '@/types'
 
 export const dynamic = 'force-dynamic'
+
+type BlogWithPosts = {
+  socialPosts: { status: PostStatus }[]
+}
 
 export default async function BlogsPage() {
   const blogs = await db.blogPost.findMany({
@@ -15,13 +20,13 @@ export default async function BlogsPage() {
     },
   })
 
-  const published = blogs.filter((b) =>
+  const published = blogs.filter((b: BlogWithPosts) =>
     b.socialPosts.some((p) => p.status === 'PUBLISHED')
   ).length
-  const withDraft = blogs.filter((b) =>
+  const withDraft = blogs.filter((b: BlogWithPosts) =>
     b.socialPosts.some((p) => p.status === 'DRAFT' || p.status === 'APPROVED')
   ).length
-  const unused = blogs.filter((b) => b.socialPosts.length === 0).length
+  const unused = blogs.filter((b: BlogWithPosts) => b.socialPosts.length === 0).length
 
   return (
     <div className="space-y-6">
