@@ -21,7 +21,7 @@ export default async function PostsPage() {
 
   type PostItem = (typeof posts)[number]
 
-  const counts = {
+  const counts: Record<PostStatus | 'ALL', number> = {
     ALL: posts.length,
     DRAFT: posts.filter((p: PostItem) => p.status === 'DRAFT').length,
     APPROVED: posts.filter((p: PostItem) => p.status === 'APPROVED').length,
