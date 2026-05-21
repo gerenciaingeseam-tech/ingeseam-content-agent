@@ -29,7 +29,7 @@ export async function sendWeeklyReviewEmail(posts: GeneratedPostSummary[]): Prom
         <td style="padding:12px 16px;border-bottom:1px solid #E2E8F0">
           <strong style="color:#0F172A;font-size:13px">${p.blogTitle}</strong><br/>
           <span style="color:#64748B;font-size:12px">${p.format} · ${p.angle}</span><br/>
-          <span style="color:#94A3B8;font-size:12px;font-style:italic">"${p.linkedinPreview.slice(0, 100)}…"</span>
+          <span style="color:#94A3B8;font-size:12px;font-style:italic">"${(p.linkedinText ?? '').slice(0, 100)}…"</span>
         </td>
         <td style="padding:12px 16px;border-bottom:1px solid #E2E8F0;text-align:center">
           <a href="${APP_URL}/posts/${p.id}"
