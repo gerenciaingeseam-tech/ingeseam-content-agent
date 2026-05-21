@@ -118,6 +118,23 @@ export function PostEditor({ post }: PostEditorProps) {
         </Link>
       </div>
 
+      {/* Imagen compartida LinkedIn + Instagram */}
+      <div className="bg-white border border-[#E2E8F0] rounded-lg p-4 shadow-sm">
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex gap-1">
+            <span className="text-[#0A66C2] font-bold text-xs bg-[#0A66C2]/10 px-1.5 py-0.5 rounded">in</span>
+            <span className="text-[#E1306C] font-bold text-xs bg-[#E1306C]/10 px-1.5 py-0.5 rounded">IG</span>
+          </div>
+          <p className="text-sm font-medium text-[#0F172A]">Imagen del post</p>
+          <p className="text-xs text-[#64748B]">— se usa en LinkedIn y en Instagram</p>
+        </div>
+        <ImageUploader
+          postId={post.id}
+          currentImage={activeImage}
+          onImageChange={setCustomImage}
+        />
+      </div>
+
       {/* Editor split view */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* ── LinkedIn ── */}
@@ -193,12 +210,6 @@ export function PostEditor({ post }: PostEditorProps) {
               ))}
             </div>
           )}
-
-          <ImageUploader
-            postId={post.id}
-            currentImage={activeImage}
-            onImageChange={setCustomImage}
-          />
 
           <InstagramPreview
             text={instagramText}
