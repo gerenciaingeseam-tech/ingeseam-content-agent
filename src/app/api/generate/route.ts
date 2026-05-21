@@ -3,46 +3,39 @@ import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { db } from '@/lib/db'
 import { generatePostPair } from '@/lib/generator'
 import { resolveServiceUrl } from '@/lib/service-mapper'
+import type { PostFormat, PostAngle } from '@/lib/prompts'
 
 export async function POST(request: NextRequest) {
-  // Verificar autenticación
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-  }
+  if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
   let blogPostId: string
+  let format: PostFormat = 'SHORT'
+  let angle: PostAngle = 'ERROR_COMUN'
+
   try {
     const body = await request.json()
     blogPostId = body.blogPostId
     if (!blogPostId) throw new Error('blogPostId requerido')
+    if (body.format) format = body.format as PostFormat
+    if (body.angle) angle = body.angle as PostAngle
   } catch {
     return NextResponse.json({ error: 'Body inválido — se requiere blogPostId' }, { status: 400 })
   }
 
-  // Obtener blog
   const blog = await db.blogPost.findUnique({ where: { id: blogPostId } })
-  if (!blog) {
-    return NextResponse.json({ error: 'Blog no encontrado' }, { status: 404 })
-  }
+  if (!blog) return NextResponse.json({ error: 'Blog no encontrado' }, { status: 404 })
 
-  // Resolver URL del servicio si no está asignada
   if (!blog.serviceUrl) {
     const serviceUrl = await resolveServiceUrl(blog.categories)
-    await db.blogPost.update({
-      where: { id: blog.id },
-      data: { serviceUrl },
-    })
+    await db.blogPost.update({ where: { id: blog.id }, data: { serviceUrl } })
     blog.serviceUrl = serviceUrl
   }
 
   try {
-    // Generar con Claude
-    const { linkedinText, instagramText, hashtags } = await generatePostPair(blog)
+    const { linkedinText, instagramText, hashtags } = await generatePostPair(blog, format, angle)
 
-    // Guardar borrador en DB
     const socialPost = await db.socialPost.create({
       data: {
         blogPostId: blog.id,
@@ -52,6 +45,7 @@ export async function POST(request: NextRequest) {
         hashtags,
         blogUrl: blog.url,
         serviceUrl: blog.serviceUrl,
+        generationNotes: `Formato: ${format} | Ángulo: ${angle}`,
       },
     })
 
