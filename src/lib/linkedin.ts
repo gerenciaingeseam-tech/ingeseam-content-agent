@@ -4,7 +4,7 @@ const LINKEDIN_AUTH_URL = 'https://www.linkedin.com/oauth/v2/authorization'
 const LINKEDIN_TOKEN_URL = 'https://www.linkedin.com/oauth/v2/accessToken'
 const LINKEDIN_API_BASE = 'https://api.linkedin.com/v2'
 
-const SCOPES = ['openid', 'profile', 'w_member_social', 'w_organization_social'].join(' ')
+const SCOPES = ['openid', 'profile', 'email', 'w_member_social'].join(' ')
 
 // ─── OAuth ────────────────────────────────────────────────────────────────────
 
