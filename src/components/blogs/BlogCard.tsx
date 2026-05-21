@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
-import { ExternalLink, Sparkles, Calendar } from 'lucide-react'
+import { ExternalLink, Calendar } from 'lucide-react'
+import { GeneratePostButton } from '@/components/blogs/GeneratePostButton'
 import type { BlogPost, PostStatus } from '@/types'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -84,20 +84,9 @@ export function BlogCard({ blog }: BlogCardProps) {
           Ver blog
         </Link>
 
-        {/* Generar post — Server Action en la página */}
-        <form action={`/api/generate`} method="POST" className="ml-auto">
-          <input type="hidden" name="blogPostId" value={blog.id} />
-          <Button
-            type="submit"
-            size="sm"
-            className="text-xs h-7 px-3 text-white"
-            style={{ backgroundColor: '#1A8F8A' }}
-            disabled={hasPublished}
-          >
-            <Sparkles className="w-3 h-3 mr-1" />
-            {hasPublished ? 'Ya publicado' : 'Generar post'}
-          </Button>
-        </form>
+        <div className="ml-auto">
+          <GeneratePostButton blogPostId={blog.id} disabled={hasPublished} />
+        </div>
       </CardFooter>
     </Card>
   )
