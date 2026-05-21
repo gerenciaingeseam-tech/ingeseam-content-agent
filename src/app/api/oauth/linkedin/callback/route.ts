@@ -12,9 +12,10 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get('error')
 
   if (error || !code) {
-    console.error('[linkedin/callback] Error OAuth:', error)
+    const errorDesc = searchParams.get('error_description') ?? 'sin descripción'
+    console.error('[linkedin/callback] Error OAuth:', error, '|', errorDesc)
     return NextResponse.redirect(
-      new URL('/settings?error=linkedin_auth_failed', request.url)
+      new URL(`/settings?error=${encodeURIComponent(error ?? 'linkedin_auth_failed')}_${encodeURIComponent(errorDesc)}`, request.url)
     )
   }
 
