@@ -91,25 +91,104 @@ async function getLinkedInPersonId(accessToken: string): Promise<string> {
 }
 
 /**
- * Publica un post en LinkedIn.
- * Intenta página de empresa primero; si falla por permisos, usa perfil personal.
+ * Sube una imagen desde URL a LinkedIn y retorna el asset URN.
+ */
+async function uploadImageToLinkedIn(
+  accessToken: string,
+  authorUrn: string,
+  imageUrl: string
+): Promise<string | null> {
+  try {
+    // 1. Registrar el upload
+    const registerRes = await fetch(
+      `${LINKEDIN_API_BASE}/assets?action=registerUpload`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          'X-Restli-Protocol-Version': '2.0.0',
+        },
+        body: JSON.stringify({
+          registerUploadRequest: {
+            recipes: ['urn:li:digitalmediaRecipe:feedshare-image'],
+            owner: authorUrn,
+            serviceRelationships: [{
+              relationshipType: 'OWNER',
+              identifier: 'urn:li:userGeneratedContent',
+            }],
+          },
+        }),
+      }
+    )
+    if (!registerRes.ok) return null
+    const registerData = await registerRes.json()
+    const uploadUrl = registerData.value?.uploadMechanism?.[
+      'com.linkedin.digitalmedia.uploading.MediaUploadHttpRequest'
+    ]?.uploadUrl
+    const assetUrn = registerData.value?.asset
+
+    if (!uploadUrl || !assetUrn) return null
+
+    // 2. Descargar imagen desde WordPress
+    const imgRes = await fetch(imageUrl)
+    if (!imgRes.ok) return null
+    const imgBuffer = await imgRes.arrayBuffer()
+
+    // 3. Subir imagen a LinkedIn
+    const uploadRes = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': imgRes.headers.get('content-type') ?? 'image/jpeg',
+      },
+      body: imgBuffer,
+    })
+    if (!uploadRes.ok) return null
+
+    return assetUrn as string
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Publica un post en LinkedIn con imagen opcional.
  */
 export async function publishToLinkedInCompanyPage(
   accessToken: string,
   orgId: string,
-  text: string
+  text: string,
+  imageUrl?: string | null
 ): Promise<string> {
-  // Intentar con perfil personal (w_member_social — disponible de inmediato)
   const personId = await getLinkedInPersonId(accessToken)
+  const authorUrn = `urn:li:person:${personId}`
 
-  const body = {
-    author: `urn:li:person:${personId}`,
-    lifecycleState: 'PUBLISHED',
-    specificContent: {
-      'com.linkedin.ugc.ShareContent': {
+  // Intentar subir imagen si existe
+  let assetUrn: string | null = null
+  if (imageUrl) {
+    assetUrn = await uploadImageToLinkedIn(accessToken, authorUrn, imageUrl)
+  }
+
+  const shareContent = assetUrn
+    ? {
+        shareCommentary: { text },
+        shareMediaCategory: 'IMAGE',
+        media: [{
+          status: 'READY',
+          media: assetUrn,
+        }],
+      }
+    : {
         shareCommentary: { text },
         shareMediaCategory: 'NONE',
-      },
+      }
+
+  const body = {
+    author: authorUrn,
+    lifecycleState: 'PUBLISHED',
+    specificContent: {
+      'com.linkedin.ugc.ShareContent': shareContent,
     },
     visibility: {
       'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC',
