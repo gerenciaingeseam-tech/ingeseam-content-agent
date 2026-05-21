@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     // LinkedIn
     if (linkedinToken && orgId) {
       try {
-        linkedinPostId = await publishToLinkedInCompanyPage(linkedinToken, orgId, post.linkedinText, post.blogPost.featuredImage)
+        linkedinPostId = await publishToLinkedInCompanyPage(linkedinToken, orgId, post.linkedinText, post.blogPost.featuredImage, post.blogUrl)
         logs.push({ socialPostId: post.id, platform: 'LINKEDIN', success: true, responseData: { postId: linkedinPostId } })
       } catch (err) {
         const msg = err instanceof Error ? err.message : 'Error LinkedIn'

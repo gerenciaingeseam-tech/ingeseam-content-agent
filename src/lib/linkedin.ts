@@ -153,30 +153,28 @@ async function uploadImageToLinkedIn(
 }
 
 /**
- * Publica un post en LinkedIn con imagen opcional.
+ * Publica un post en LinkedIn.
+ * Si hay blogUrl, usa tipo ARTICLE para que LinkedIn scrapee la imagen automáticamente.
  */
 export async function publishToLinkedInCompanyPage(
   accessToken: string,
   orgId: string,
   text: string,
-  imageUrl?: string | null
+  imageUrl?: string | null,
+  blogUrl?: string | null
 ): Promise<string> {
   const personId = await getLinkedInPersonId(accessToken)
   const authorUrn = `urn:li:person:${personId}`
 
-  // Intentar subir imagen si existe
-  let assetUrn: string | null = null
-  if (imageUrl) {
-    assetUrn = await uploadImageToLinkedIn(accessToken, authorUrn, imageUrl)
-  }
-
-  const shareContent = assetUrn
+  // Con blogUrl → ARTICLE (LinkedIn scrapea og:image del blog automáticamente)
+  // Sin blogUrl → NONE (solo texto)
+  const shareContent = blogUrl
     ? {
         shareCommentary: { text },
-        shareMediaCategory: 'IMAGE',
+        shareMediaCategory: 'ARTICLE',
         media: [{
           status: 'READY',
-          media: assetUrn,
+          originalUrl: blogUrl,
         }],
       }
     : {

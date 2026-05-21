@@ -50,7 +50,8 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
   if (linkedinToken && orgId) {
     try {
       linkedinPostId = await publishToLinkedInCompanyPage(
-        linkedinToken, orgId, post.linkedinText, post.blogPost.featuredImage
+        linkedinToken, orgId, post.linkedinText,
+        post.blogPost.featuredImage, post.blogUrl
       )
       logs.push({
         socialPostId: id, platform: 'LINKEDIN', success: true,
