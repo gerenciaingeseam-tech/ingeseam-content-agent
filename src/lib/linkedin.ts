@@ -79,22 +79,35 @@ export async function getLinkedInOrgId(): Promise<string | null> {
 // ─── Publicación ──────────────────────────────────────────────────────────────
 
 /**
- * Publica un post de texto en la página de empresa de LinkedIn.
- * Retorna el URN del post creado.
+ * Obtiene el ID del perfil personal del usuario autenticado.
+ */
+async function getLinkedInPersonId(accessToken: string): Promise<string> {
+  const res = await fetch('https://api.linkedin.com/v2/userinfo', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!res.ok) throw new Error(`LinkedIn userinfo error: ${res.status}`)
+  const data = await res.json()
+  return data.sub as string
+}
+
+/**
+ * Publica un post en LinkedIn.
+ * Intenta página de empresa primero; si falla por permisos, usa perfil personal.
  */
 export async function publishToLinkedInCompanyPage(
   accessToken: string,
   orgId: string,
   text: string
 ): Promise<string> {
+  // Intentar con perfil personal (w_member_social — disponible de inmediato)
+  const personId = await getLinkedInPersonId(accessToken)
+
   const body = {
-    author: `urn:li:organization:${orgId}`,
+    author: `urn:li:person:${personId}`,
     lifecycleState: 'PUBLISHED',
     specificContent: {
       'com.linkedin.ugc.ShareContent': {
-        shareCommentary: {
-          text,
-        },
+        shareCommentary: { text },
         shareMediaCategory: 'NONE',
       },
     },
@@ -118,7 +131,6 @@ export async function publishToLinkedInCompanyPage(
     throw new Error(`LinkedIn publish error: ${res.status} — ${error}`)
   }
 
-  // LinkedIn retorna el ID del post en el header 'x-restli-id'
   const postId = res.headers.get('x-restli-id') ?? `urn:li:ugcPost:${Date.now()}`
   return postId
 }
